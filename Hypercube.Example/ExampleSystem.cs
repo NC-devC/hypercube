@@ -4,6 +4,7 @@ using Hypercube.Shared.Dependency;
 using Hypercube.Shared.Entities.Realisation.Systems;
 using Hypercube.Shared.Runtimes.Loop.Event;
 using Hypercube.Shared.Timing;
+using System.Diagnostics;
 
 namespace Hypercube.Example;
 
@@ -18,7 +19,12 @@ public sealed class ExampleSystem : EntitySystem
         foreach (var entity in GetEntities<ExampleComponent>())
         {
             var sprite = GetComponent<SpriteComponent>(entity);
-            sprite.Color = Color.FromHSV(MathF.Abs(MathF.Sin((float)_timing.RealTime.TotalMilliseconds / 1000f + entity.Component.Offset)), 1f, 1f);
+            if (HasComponent<CoinComponent>(entity))
+            { }
+            else
+            {
+                sprite.Color = Color.FromHSV(MathF.Abs(MathF.Sin((float)_timing.RealTime.TotalMilliseconds / 1000f + entity.Component.Offset)), 1f, 1f);
+            }
         }
     }
 }

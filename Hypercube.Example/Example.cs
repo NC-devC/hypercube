@@ -17,6 +17,7 @@ using Hypercube.Shared.Resources;
 using Hypercube.Shared.Resources.Container;
 using Hypercube.Shared.Runtimes.Event;
 using Hypercube.Shared.Scenes;
+using System.Diagnostics;
 
 namespace Hypercube.Example;
 
@@ -44,6 +45,7 @@ public sealed class Example : IEventSubscriber, IPostInject
 
     private void Startup(ref RuntimeStartupEvent args)
     {
+        /*
         for (var i = 0; i < 10; i++)
         {
             var x = _random.NextSingle() * 10 - 5;
@@ -53,6 +55,7 @@ public sealed class Example : IEventSubscriber, IPostInject
             CreateEntity(coord, new RectangleShape(Vector2.One * 2f));
             CreateEntity(coord, new CircleShape(1f));
         }
+        */
 
         CreateEntity(new SceneCoordinates(SceneId.Nullspace, new Vector2(0, 11)),
             new RectangleShape(new Vector2(40, 1)), BodyType.Static);
@@ -62,6 +65,8 @@ public sealed class Example : IEventSubscriber, IPostInject
             new RectangleShape(new Vector2(1, 21)), BodyType.Static);
         CreateEntity(new SceneCoordinates(SceneId.Nullspace, new Vector2(20, 0)),
             new RectangleShape(new Vector2(1, 21)), BodyType.Static);
+
+        CreateCoin(new SceneCoordinates(SceneId.Nullspace, new Vector2(5, 0)));
         
         CreatePlayer();
 
@@ -97,9 +102,37 @@ public sealed class Example : IEventSubscriber, IPostInject
         });
     }
 
+    private void CreateCoin(SceneCoordinates coordinates, BodyType type = BodyType.Dynamic)
+    {
+        IShape shape = new CircleShape(0.75f);
+        var entityUid = _entitiesManager.Create("ochenkrutoycoin", coordinates);
+
+        _entitiesComponentManager.AddComponent<PhysicsComponent>(entityUid, entity =>
+        {
+            entity.Component.Type = type;
+            entity.Component.Shape = shape;
+        });
+
+        _entitiesComponentManager.AddComponent<CoinComponent>(entityUid, entity =>
+        {
+            Debug.WriteLine("Денег нада.");
+        });
+
+        _entitiesComponentManager.AddComponent<SpriteComponent>(entityUid, entity =>
+        {
+            entity.Component.TexturePath = new ResourcePath("/Textures/coin.png");
+            entity.Component.Transform.SetScale(new Vector2(3, 3));
+        });
+
+        _entitiesComponentManager.AddComponent<ExampleComponent>(entityUid, entity =>
+        {
+            entity.Component.Offset = _random.Next(0, 1000);
+        });
+    }
+
     private void CreatePlayer()
     {
-        var entityUid = _entitiesManager.Create("Fuck", new SceneCoordinates(SceneId.Nullspace, new Vector2(0, 0)));
+        var entityUid = _entitiesManager.Create("Player", new SceneCoordinates(SceneId.Nullspace, new Vector2(0, 0)));
         
         _entitiesComponentManager.AddComponent<ControlsComponent>(entityUid);
         _entitiesComponentManager.AddComponent<PhysicsComponent>(entityUid, entity =>
@@ -110,7 +143,8 @@ public sealed class Example : IEventSubscriber, IPostInject
         
         _entitiesComponentManager.AddComponent<SpriteComponent>(entityUid, entity =>
         {
-            entity.Component.TexturePath = new ResourcePath("/Textures/icon.png");
+            entity.Component.TexturePath = new ResourcePath("/Textures/plr.png");
+            entity.Component.Transform.SetScale(new Vector2(4, 4));
         });
     }
 }
